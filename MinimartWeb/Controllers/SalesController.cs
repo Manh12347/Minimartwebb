@@ -47,7 +47,7 @@ namespace MinimartWeb.Controllers
             return View(sale);
         }
 
-        // GET: Sales/Create
+        // GET: Sales/Create 
         public IActionResult Create()
         {
             ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "Email");

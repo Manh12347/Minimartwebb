@@ -1,4 +1,4 @@
-@model MinimartWeb.Model.ProductType
+﻿@model MinimartWeb.Model.ProductType
 
 @{
     ViewData["Title"] = "Details";
@@ -58,11 +58,14 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DateAdded)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImagePath)
+        <dt class="col-sm-2">
+            Image
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImagePath)
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="~/images/products/@Model.ImagePath" alt="@Model.ProductName" style="max-height:300px;" />
+            }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Category)
@@ -74,7 +77,7 @@
             @Html.DisplayNameFor(model => model.Supplier)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Supplier.SupplierAddress)
+            @Html.DisplayFor(model => model.Supplier.SupplierName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.MeasurementUnit)

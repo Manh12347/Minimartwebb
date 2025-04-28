@@ -1,6 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -9,11 +7,15 @@ namespace MinimartWeb.Model
         [Key]
         public int CategoryID { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Name")]
         public string CategoryName { get; set; }
 
+        [Display(Name = "Description")]
         public string? CategoryDescription { get; set; }
 
-        public ICollection<ProductType> ProductTypes { get; set; } = new List<ProductType>();
+        // Navigation property
+        public ICollection<ProductType> ProductTypes { get; set; } = new HashSet<ProductType>();
     }
 }

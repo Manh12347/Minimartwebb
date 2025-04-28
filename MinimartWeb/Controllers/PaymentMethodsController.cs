@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,12 +50,15 @@ namespace MinimartWeb.Controllers
         }
 
         // POST: PaymentMethods/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaymentMethodID,MethodName")] PaymentMethod paymentMethod)
         {
+            if (await _context.PaymentMethods.AnyAsync(pm => pm.MethodName == paymentMethod.MethodName))
+            {
+                ModelState.AddModelError("MethodName", "This payment method name already exists.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(paymentMethod);
@@ -81,9 +84,7 @@ namespace MinimartWeb.Controllers
             return View(paymentMethod);
         }
 
-        // POST: PaymentMethods/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+       // POST: PaymentMethods/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("PaymentMethodID,MethodName")] PaymentMethod paymentMethod)
@@ -91,6 +92,11 @@ namespace MinimartWeb.Controllers
             if (id != paymentMethod.PaymentMethodID)
             {
                 return NotFound();
+            }
+
+            if (await _context.PaymentMethods.AnyAsync(pm => pm.MethodName == paymentMethod.MethodName && pm.PaymentMethodID != id))
+            {
+                ModelState.AddModelError("MethodName", "This payment method name already exists.");
             }
 
             if (ModelState.IsValid)

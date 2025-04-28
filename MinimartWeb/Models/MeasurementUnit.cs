@@ -1,5 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -8,14 +7,19 @@ namespace MinimartWeb.Model
         [Key]
         public int MeasurementUnitID { get; set; }
 
-        [Required, MaxLength(50)]
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Unit Name")]
         public string UnitName { get; set; }
 
+        [Display(Name = "Unit Description")]
         public string? UnitDescription { get; set; }
 
         [Required]
+        [Display(Name = "Is Continuous")]
         public bool IsContinuous { get; set; }
 
-        public ICollection<ProductType> ProductTypes { get; set; } = new List<ProductType>();
+        // Navigation property
+        public ICollection<ProductType> ProductTypes { get; set; } = new HashSet<ProductType>();
     }
 }

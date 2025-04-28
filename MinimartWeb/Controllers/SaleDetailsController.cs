@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,7 +50,7 @@ namespace MinimartWeb.Controllers
         public IActionResult Create()
         {
             ViewData["ProductTypeID"] = new SelectList(_context.ProductTypes, "ProductTypeID", "ProductDescription");
-            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "OrderStatus");
+            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "DeliveryAddress");
             return View();
         }
 
@@ -68,7 +68,7 @@ namespace MinimartWeb.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProductTypeID"] = new SelectList(_context.ProductTypes, "ProductTypeID", "ProductDescription", saleDetail.ProductTypeID);
-            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "OrderStatus", saleDetail.SaleID);
+            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "DeliveryAddress", saleDetail.SaleID);
             return View(saleDetail);
         }
 
@@ -86,7 +86,7 @@ namespace MinimartWeb.Controllers
                 return NotFound();
             }
             ViewData["ProductTypeID"] = new SelectList(_context.ProductTypes, "ProductTypeID", "ProductDescription", saleDetail.ProductTypeID);
-            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "OrderStatus", saleDetail.SaleID);
+            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "DeliveryAddress", saleDetail.SaleID);
             return View(saleDetail);
         }
 
@@ -123,7 +123,7 @@ namespace MinimartWeb.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProductTypeID"] = new SelectList(_context.ProductTypes, "ProductTypeID", "ProductDescription", saleDetail.ProductTypeID);
-            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "OrderStatus", saleDetail.SaleID);
+            ViewData["SaleID"] = new SelectList(_context.Sales, "SaleID", "DeliveryAddress", saleDetail.SaleID);
             return View(saleDetail);
         }
 

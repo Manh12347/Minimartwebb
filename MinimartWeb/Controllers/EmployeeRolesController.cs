@@ -1,83 +1,163 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MinimartWeb.BOs;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using MinimartWeb.Data;
-using MinimartWeb.DAOs;
 using MinimartWeb.Model;
 
 namespace MinimartWeb.Controllers
 {
     public class EmployeeRolesController : Controller
     {
-        private readonly EmployeeRoleBO _bo;
+        private readonly ApplicationDbContext _context;
 
         public EmployeeRolesController(ApplicationDbContext context)
         {
-            var dao = new EmployeeRoleDAO(context);
-            _bo = new EmployeeRoleBO(dao);
+            _context = context;
         }
 
-        public IActionResult Index() => View(_bo.GetAll());
-
-        public IActionResult Details(int id)
+        // GET: EmployeeRoles
+        public async Task<IActionResult> Index()
         {
-            var role = _bo.GetById(id);
-            if (role == null) return NotFound();
-            return View(role);
+            return View(await _context.EmployeeRoles.ToListAsync());
         }
 
-        public IActionResult Create() => View();
+        // GET: EmployeeRoles/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var employeeRole = await _context.EmployeeRoles
+                .FirstOrDefaultAsync(m => m.RoleID == id);
+            if (employeeRole == null)
+            {
+                return NotFound();
+            }
+
+            return View(employeeRole);
+        }
+
+        // GET: EmployeeRoles/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: EmployeeRoles/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(EmployeeRole role)
+        public async Task<IActionResult> Create([Bind("RoleID,RoleName,RoleDescription")] EmployeeRole employeeRole)
         {
-            var (isValid, errors) = _bo.ValidateAndAdd(role);
-            if (isValid)
+            // Check for duplicate RoleName (case-insensitive)
+            if (await _context.EmployeeRoles.AnyAsync(r => r.RoleName.ToLower() == employeeRole.RoleName.ToLower()))
+            {
+                ModelState.AddModelError("RoleName", "The role name is already in use.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(employeeRole);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-
-            foreach (var error in errors)
-                ModelState.AddModelError(string.Empty, error);
-
-            return View(role);
+            }
+            return View(employeeRole);
         }
 
-        public IActionResult Edit(int id)
+        // GET: EmployeeRoles/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            var role = _bo.GetById(id);
-            if (role == null) return NotFound();
-            return View(role);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employeeRole = await _context.EmployeeRoles.FindAsync(id);
+            if (employeeRole == null)
+            {
+                return NotFound();
+            }
+            return View(employeeRole);
         }
 
+        // POST: EmployeeRoles/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, EmployeeRole role)
+        public async Task<IActionResult> Edit(int id, [Bind("RoleID,RoleName,RoleDescription")] EmployeeRole employeeRole)
         {
-            if (id != role.RoleID) return NotFound();
+            if (id != employeeRole.RoleID)
+            {
+                return NotFound();
+            }
 
-            var (isValid, errors) = _bo.ValidateAndUpdate(role);
-            if (isValid)
+            // Check for duplicate RoleName (case-insensitive, exclude current record)
+            if (await _context.EmployeeRoles.AnyAsync(r => r.RoleName.ToLower() == employeeRole.RoleName.ToLower() && r.RoleID != employeeRole.RoleID))
+            {
+                ModelState.AddModelError("RoleName", "The role name is already in use.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(employeeRole);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EmployeeRoleExists(employeeRole.RoleID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
-
-            foreach (var error in errors)
-                ModelState.AddModelError(string.Empty, error);
-
-            return View(role);
+            }
+            return View(employeeRole);
         }
 
-        public IActionResult Delete(int id)
+        private bool EmployeeRoleExists(int id)
         {
-            var role = _bo.GetById(id);
-            if (role == null) return NotFound();
-            return View(role);
+            return _context.EmployeeRoles.Any(e => e.RoleID == id);
+        }
+        // GET: EmployeeRoles/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employeeRole = await _context.EmployeeRoles
+                .FirstOrDefaultAsync(m => m.RoleID == id);
+            if (employeeRole == null)
+            {
+                return NotFound();
+            }
+
+            return View(employeeRole);
         }
 
+        // POST: EmployeeRoles/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var role = _bo.GetById(id);
-            if (role == null) return NotFound();
-            _bo.Delete(role);
+            var employeeRole = await _context.EmployeeRoles.FindAsync(id);
+            if (employeeRole != null)
+            {
+                _context.EmployeeRoles.Remove(employeeRole);
+            }
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
     }

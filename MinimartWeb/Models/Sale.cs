@@ -1,6 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -10,29 +8,42 @@ namespace MinimartWeb.Model
         public int SaleID { get; set; }
 
         [Required]
-        public DateTime SaleDate { get; set; }
+        [Display(Name = "Date")]
+        public DateTime SaleDate { get; set; } = DateTime.Now;
 
-        [ForeignKey("Customer")]
+        [Display(Name = "Customer")]
         public int? CustomerID { get; set; }
-        public Customer? Customer { get; set; }
 
-        [ForeignKey("Employee")]
+        [Required]
+        [Display(Name = "Employee")]
         public int EmployeeID { get; set; }
-        public Employee Employee { get; set; }
 
-        [ForeignKey("PaymentMethod")]
+        [Required]
+        [Display(Name = "Payment Method")]
         public int PaymentMethodID { get; set; }
+
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Delivery Address")]
+        public string DeliveryAddress { get; set; }
+
+        [Required]
+        [Display(Name = "Delivery Time")]
+        public DateTime DeliveryTime { get; set; }
+
+        [Display(Name = "Is Pickup")]
+        public bool IsPickup { get; set; } = false;
+
+        [Required]
+        [StringLength(50)]
+        [RegularExpression(@"^(Pending|Confirmed|Processing|Completed|Cancelled)$", ErrorMessage = "Invalid order status.")]
+        [Display(Name = "Order Status")]
+        public string OrderStatus { get; set; } = "Pending";
+
+        // Navigation properties
+        public Customer Customer { get; set; }
+        public Employee Employee { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
-
-        public string? DeliveryAddress { get; set; }
-
-        public DateTime? DeliveryTime { get; set; }
-
-        public bool IsPickup { get; set; }
-
-        [Required, MaxLength(50)]
-        public string OrderStatus { get; set; }
-
         public ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
     }
 }

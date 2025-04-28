@@ -1,6 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -9,18 +7,28 @@ namespace MinimartWeb.Model
         [Key]
         public int SupplierID { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Name")]
         public string SupplierName { get; set; }
 
-        [Required, StringLength(10)]
+        [Required]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
+        [Display(Name = "Phone Number")]
         public string SupplierPhoneNumber { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Address")]
         public string SupplierAddress { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [EmailAddress]
+        [StringLength(255)]
+        [Display(Name = "Email")]
         public string SupplierEmail { get; set; }
 
+        // Navigation property
         public ICollection<ProductType> ProductTypes { get; set; } = new List<ProductType>();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MinimartWeb.Model
 {
@@ -8,21 +7,33 @@ namespace MinimartWeb.Model
         [Key]
         public int AdminID { get; set; }
 
-        [ForeignKey("Employee")]
+        [Required]
+        [Display(Name = "Employee ID")]
         public int EmployeeID { get; set; }
-        public Employee Employee { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Username")]
         public string Username { get; set; }
 
-        [Required]
+        [MaxLength(64)]
+        [Display(Name = "Password Hash")]
         public byte[] PasswordHash { get; set; }
 
-        [Required]
+        [MaxLength(64)]
+        [Display(Name = "Salt")]
         public byte[] Salt { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        [Display(Name = "Created At")]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [Display(Name = "Last Login")]
         public DateTime? LastLogin { get; set; }
-        public bool IsActive { get; set; }
+
+        [Display(Name = "Active")]
+        public bool IsActive { get; set; } = true;
+
+        // Navigation property
+        public Employee Employee { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-@model IEnumerable<MinimartWeb.Model.ProductType>
+﻿@model IEnumerable<MinimartWeb.Model.ProductType>
 
 @{
     ViewData["Title"] = "Index";
@@ -79,7 +79,10 @@
                 @Html.DisplayFor(modelItem => item.DateAdded)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImagePath)
+                @if (!string.IsNullOrEmpty(item.ImagePath))
+                {
+                    <img src="~/images/products/@item.ImagePath" alt="@item.ProductName" style="max-height:100px;" />
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Category.CategoryName)

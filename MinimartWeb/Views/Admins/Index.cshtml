@@ -1,4 +1,4 @@
-@model IEnumerable<MinimartWeb.Model.Admin>
+﻿@model IEnumerable<MinimartWeb.Model.Admin>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,9 +13,6 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Username)
             </th>
             <th>
@@ -27,15 +24,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.CitizenID)
-            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Username)
             </td>
@@ -47,6 +44,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.CitizenID)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.AdminID">Edit</a> |

@@ -1,4 +1,4 @@
-@model MinimartWeb.Model.Employee
+﻿@model MinimartWeb.Model.Employee
 
 @{
     ViewData["Title"] = "Delete";
@@ -72,10 +72,10 @@
             @Html.DisplayFor(model => model.ImagePath)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EmployeeRole)
+            @Html.DisplayNameFor(model => model.Role)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EmployeeRole.RoleName)
+            @Html.DisplayFor(model => model.Role.RoleName)
         </dd>
     </dl>
     

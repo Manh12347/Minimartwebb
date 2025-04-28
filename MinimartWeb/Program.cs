@@ -1,36 +1,36 @@
 using Microsoft.EntityFrameworkCore;
-using MinimartWeb.BOs;
-using MinimartWeb.DAOs;
+//using MinimartWeb.BOs;
+//using MinimartWeb.DAOs;
 using MinimartWeb;
 using MinimartWeb.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register DAOs
-builder.Services.AddScoped<CategoryDAO>();
-builder.Services.AddScoped<SupplierDAO>();
-builder.Services.AddScoped<MeasurementUnitDAO>();
-builder.Services.AddScoped<ProductTypeDAO>();
-builder.Services.AddScoped<CustomerDAO>();
-builder.Services.AddScoped<EmployeeRoleDAO>();
-builder.Services.AddScoped<EmployeeDAO>();
-builder.Services.AddScoped<AdminDAO>();
-builder.Services.AddScoped<PaymentMethodDAO>();
-builder.Services.AddScoped<SaleDAO>();
-builder.Services.AddScoped<SaleDetailDAO>();
+//// Register DAOs
+//builder.Services.AddScoped<CategoryDAO>();
+//builder.Services.AddScoped<SupplierDAO>();
+//builder.Services.AddScoped<MeasurementUnitDAO>();
+//builder.Services.AddScoped<ProductTypeDAO>();
+//builder.Services.AddScoped<CustomerDAO>();
+//builder.Services.AddScoped<EmployeeRoleDAO>();
+//builder.Services.AddScoped<EmployeeDAO>();
+//builder.Services.AddScoped<AdminDAO>();
+//builder.Services.AddScoped<PaymentMethodDAO>();
+//builder.Services.AddScoped<SaleDAO>();
+//builder.Services.AddScoped<SaleDetailDAO>();
 
-// Register BOs
-builder.Services.AddScoped<CategoryBO>();
-builder.Services.AddScoped<SupplierBO>();
-builder.Services.AddScoped<MeasurementUnitBO>();
-builder.Services.AddScoped<ProductTypeBO>();
-builder.Services.AddScoped<CustomerBO>();
-builder.Services.AddScoped<EmployeeRoleBO>();
-builder.Services.AddScoped<EmployeeBO>();
-builder.Services.AddScoped<AdminBO>();
-builder.Services.AddScoped<PaymentMethodBO>();
-builder.Services.AddScoped<SaleBO>();
-builder.Services.AddScoped<SaleDetailBO>();
+//// Register BOs
+//builder.Services.AddScoped<CategoryBO>();
+//builder.Services.AddScoped<SupplierBO>();
+//builder.Services.AddScoped<MeasurementUnitBO>();
+//builder.Services.AddScoped<ProductTypeBO>();
+//builder.Services.AddScoped<CustomerBO>();
+//builder.Services.AddScoped<EmployeeRoleBO>();
+//builder.Services.AddScoped<EmployeeBO>();
+//builder.Services.AddScoped<AdminBO>();
+//builder.Services.AddScoped<PaymentMethodBO>();
+//builder.Services.AddScoped<SaleBO>();
+//builder.Services.AddScoped<SaleDetailBO>();
 
 
 // Add services to the container.

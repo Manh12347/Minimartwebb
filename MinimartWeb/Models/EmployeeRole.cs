@@ -1,5 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -8,11 +7,15 @@ namespace MinimartWeb.Model
         [Key]
         public int RoleID { get; set; }
 
-        [Required, MaxLength(255)]
+        [Required]
+        [StringLength(255)]
+        [Display(Name = "Role Name")]
         public string RoleName { get; set; }
 
+        [Display(Name = "Role Description")]
         public string? RoleDescription { get; set; }
 
-        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        // Navigation property
+        public ICollection<Employee> Employees { get; set; } = new HashSet<Employee>();
     }
 }

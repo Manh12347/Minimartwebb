@@ -1,5 +1,4 @@
-﻿using MinimartWeb.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MinimartWeb.Model
 {
@@ -8,9 +7,12 @@ namespace MinimartWeb.Model
         [Key]
         public int PaymentMethodID { get; set; }
 
-        [Required, MaxLength(50)]
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Method Name")]
         public string MethodName { get; set; }
 
-        public ICollection<Sale> Sales { get; set; } = new List<Sale>();
+        // Navigation property
+        public ICollection<Sale> Sales { get; set; } = new HashSet<Sale>();
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MinimartWeb.Model
 {
-    public class OtpRequest
+    public class OtpRequest 
     {
         [Key]
         public int OtpRequestID { get; set; }

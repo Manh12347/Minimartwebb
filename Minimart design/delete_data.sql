@@ -1,4 +1,4 @@
-use DKMovies
+use Minimart
 
 -- Disable constraints and delete data safely from all user tables
 

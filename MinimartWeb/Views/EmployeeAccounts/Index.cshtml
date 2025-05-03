@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MinimartWeb.Model.Admin>
+﻿@model IEnumerable<MinimartWeb.Model.EmployeeAccount>
 
 @{
     ViewData["Title"] = "Index";
@@ -49,9 +49,9 @@
                 @Html.DisplayFor(modelItem => item.Employee.CitizenID)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.AdminID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.AdminID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.AdminID">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.AccountID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AccountID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AccountID">Delete</a>
             </td>
         </tr>
 }

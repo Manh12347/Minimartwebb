@@ -1,4 +1,4 @@
-﻿@model MinimartWeb.Model.Admin
+﻿@model MinimartWeb.Model.EmployeeAccount
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,7 +11,7 @@
     <div class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="AdminID" />
+            <input type="hidden" asp-for="AccountID" />
 
             <div class="form-group">
                 <label asp-for="EmployeeID" class="control-label"></label>

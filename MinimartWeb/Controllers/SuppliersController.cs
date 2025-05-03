@@ -50,20 +50,40 @@ namespace MinimartWeb.Controllers
         }
 
         // POST: Suppliers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SupplierID,SupplierName,SupplierPhoneNumber,SupplierAddress,SupplierEmail")] Supplier supplier)
         {
+            // Check if a supplier with the same name already exists
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierName == supplier.SupplierName))
+            {
+                ModelState.AddModelError("SupplierName", "Supplier with this name already exists.");
+            }
+
+            // Check if a supplier with the same phone number already exists
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierPhoneNumber == supplier.SupplierPhoneNumber))
+            {
+                ModelState.AddModelError("SupplierPhoneNumber", "Supplier with this phone number already exists.");
+            }
+
+            // Check if a supplier with the same email already exists
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierEmail == supplier.SupplierEmail))
+            {
+                ModelState.AddModelError("SupplierEmail", "Supplier with this email already exists.");
+            }
+
+            // If model state is valid, add the supplier
             if (ModelState.IsValid)
             {
                 _context.Add(supplier);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            // If not valid, return to the Create view with validation errors
             return View(supplier);
         }
+
 
         // GET: Suppliers/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -82,8 +102,6 @@ namespace MinimartWeb.Controllers
         }
 
         // POST: Suppliers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("SupplierID,SupplierName,SupplierPhoneNumber,SupplierAddress,SupplierEmail")] Supplier supplier)
@@ -91,6 +109,24 @@ namespace MinimartWeb.Controllers
             if (id != supplier.SupplierID)
             {
                 return NotFound();
+            }
+
+            // Check if any other supplier (excluding the current one) has the same name
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierName == supplier.SupplierName && s.SupplierID != id))
+            {
+                ModelState.AddModelError("SupplierName", "Supplier with this name already exists.");
+            }
+
+            // Check if any other supplier (excluding the current one) has the same phone number
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierPhoneNumber == supplier.SupplierPhoneNumber && s.SupplierID != id))
+            {
+                ModelState.AddModelError("SupplierPhoneNumber", "Supplier with this phone number already exists.");
+            }
+
+            // Check if any other supplier (excluding the current one) has the same email
+            if (await _context.Suppliers.AnyAsync(s => s.SupplierEmail == supplier.SupplierEmail && s.SupplierID != id))
+            {
+                ModelState.AddModelError("SupplierEmail", "Supplier with this email already exists.");
             }
 
             if (ModelState.IsValid)
@@ -113,6 +149,8 @@ namespace MinimartWeb.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // If not valid, return to the Edit view with validation errors
             return View(supplier);
         }
 

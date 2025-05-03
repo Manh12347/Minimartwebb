@@ -57,48 +57,61 @@ namespace MinimartWeb.Controllers
             return View();
         }
 
-        // POST: ProductTypes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductTypeID,ProductName,ProductDescription,CategoryID,SupplierID,Price,Tags,StockAmount,MeasurementUnitID,ExpirationDurationDays,IsActive,DateAdded,ImagePath")] ProductType productType, IFormFile ImageUpload)
+        public async Task<IActionResult> Create([Bind("ProductTypeID,ProductName,ProductDescription,CategoryID,SupplierID,Price,StockAmount,MeasurementUnitID,ExpirationDurationDays,IsActive,DateAdded,ImagePath")] ProductType productType, IFormFile ImageUpload)
         {
+            if (await _context.ProductTypes.AnyAsync(p => p.ProductName == productType.ProductName))
+            {
+                ModelState.AddModelError("ProductName", "Product Name already exists.");
+            }
+
+            ModelState.Remove("ImagePath");
             ModelState.Remove("Category");
-            ModelState.Remove("Supplier");
             ModelState.Remove("MeasurementUnit");
+            ModelState.Remove("Supplier");
+
+            // Image upload logic
+            if (ImageUpload != null && ImageUpload.Length > 0)
+            {
+                var fileExtension = Path.GetExtension(ImageUpload.FileName);
+                var newFileName = $"{Guid.NewGuid()}{fileExtension}";
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", newFileName);
+
+                using (var fileStream = new FileStream(uploadPath, FileMode.Create))
+                {
+                    await ImageUpload.CopyToAsync(fileStream);
+                }
+
+                productType.ImagePath = newFileName;
+            }
+
+            // Only require image if not already set
+            if (string.IsNullOrEmpty(productType.ImagePath))
+            {
+                ModelState.AddModelError("ImagePath", "Product image is required.");
+            }
 
             if (ModelState.IsValid)
             {
-                // Handle image upload
-                if (ImageUpload != null && ImageUpload.Length > 0)
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(ImageUpload.FileName);
-                    var fileExtension = Path.GetExtension(ImageUpload.FileName);
-                    var newFileName = $"{Guid.NewGuid()}{fileExtension}";
-
-                    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", newFileName);
-
-                    using (var fileStream = new FileStream(uploadPath, FileMode.Create))
-                    {
-                        await ImageUpload.CopyToAsync(fileStream);
-                    }
-
-                    productType.ImagePath = $"/images/products/{newFileName}";
-                }
-
                 _context.Add(productType);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            // Print model errors if invalid
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            // If model state is not valid, log errors for debugging
+            if (!ModelState.IsValid)
             {
-                Console.WriteLine(error.ErrorMessage);
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
 
+            // If invalid, reload the drop-down lists and show validation errors
             ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", productType.CategoryID);
             ViewData["MeasurementUnitID"] = new SelectList(_context.MeasurementUnits, "MeasurementUnitID", "UnitName", productType.MeasurementUnitID);
             ViewData["SupplierID"] = new SelectList(_context.Suppliers, "SupplierID", "SupplierName", productType.SupplierID);
+
             return View(productType);
         }
 
@@ -115,22 +128,54 @@ namespace MinimartWeb.Controllers
             {
                 return NotFound();
             }
+
+            // Match Create action's SelectList naming
             ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", productType.CategoryID);
             ViewData["MeasurementUnitID"] = new SelectList(_context.MeasurementUnits, "MeasurementUnitID", "UnitName", productType.MeasurementUnitID);
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "SupplierID", "SupplierAddress", productType.SupplierID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "SupplierID", "SupplierName", productType.SupplierID); // FIXED: SupplierName instead of SupplierAddress
             return View(productType);
         }
 
-        // POST: ProductTypes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductTypeID,ProductName,ProductDescription,CategoryID,SupplierID,Price,Tags,StockAmount,MeasurementUnitID,ExpirationDurationDays,IsActive,DateAdded,ImagePath")] ProductType productType)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductTypeID,ProductName,ProductDescription,CategoryID,SupplierID,Price,StockAmount,MeasurementUnitID,ExpirationDurationDays,IsActive,DateAdded,ImagePath")] ProductType productType, IFormFile ImageUpload)
         {
             if (id != productType.ProductTypeID)
             {
                 return NotFound();
+            }
+
+            // Match Create action's ModelState.Remove calls
+            ModelState.Remove("Category");
+            ModelState.Remove("Supplier");
+            ModelState.Remove("MeasurementUnit");
+            ModelState.Remove("ImageUpload");
+
+            // Duplicate name check (same as Create)
+            if (await _context.ProductTypes.AnyAsync(p => p.ProductName == productType.ProductName && p.ProductTypeID != productType.ProductTypeID))
+            {
+                ModelState.AddModelError("ProductName", "Product Name already exists.");
+            }
+
+            // Image upload logic (same as Create)
+            if (ImageUpload != null && ImageUpload.Length > 0)
+            {
+                var fileExtension = Path.GetExtension(ImageUpload.FileName);
+                var newFileName = $"{Guid.NewGuid()}{fileExtension}";
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", newFileName);
+
+                using (var fileStream = new FileStream(uploadPath, FileMode.Create))
+                {
+                    await ImageUpload.CopyToAsync(fileStream);
+                }
+
+                productType.ImagePath = newFileName; // Match Create's path format
+            }
+
+            // Validation (same as Create)
+            if (string.IsNullOrEmpty(productType.ImagePath))
+            {
+                ModelState.AddModelError("ImagePath", "Product image is required.");
             }
 
             if (ModelState.IsValid)
@@ -153,11 +198,15 @@ namespace MinimartWeb.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // Reload dropdowns on error (same as Create)
             ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", productType.CategoryID);
             ViewData["MeasurementUnitID"] = new SelectList(_context.MeasurementUnits, "MeasurementUnitID", "UnitName", productType.MeasurementUnitID);
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "SupplierID", "SupplierAddress", productType.SupplierID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "SupplierID", "SupplierName", productType.SupplierID);
+
             return View(productType);
         }
+
 
         // GET: ProductTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)

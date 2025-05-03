@@ -2,10 +2,10 @@
 
 namespace MinimartWeb.Model
 {
-    public class Admin
+    public class EmployeeAccount
     {
         [Key]
-        public int AdminID { get; set; }
+        public int AccountID { get; set; }
 
         [Required]
         [Display(Name = "Employee ID")]
@@ -32,6 +32,9 @@ namespace MinimartWeb.Model
 
         [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
+
+        [Display(Name = "Admin")]
+        public bool IsAdmin { get; set; } = true;
 
         // Navigation property
         public Employee Employee { get; set; }

@@ -65,5 +65,6 @@ namespace MinimartWeb.Model
         public EmployeeRole Role { get; set; }
 
         public ICollection<Sale> Sales { get; set; } = new HashSet<Sale>();
+        public ICollection<OtpRequest> OtpRequests { get; set; } = new HashSet<OtpRequest>();
     }
 }

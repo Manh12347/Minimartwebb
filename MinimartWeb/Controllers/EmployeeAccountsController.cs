@@ -11,37 +11,37 @@ using MinimartWeb.Model;
 
 namespace MinimartWeb.Controllers
 {
-    public class AdminsController : Controller
+    public class EmployeeAccountsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public AdminsController(ApplicationDbContext context)
+        public EmployeeAccountsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Admins
+        // GET: EmployeeAccounts
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Admins.Include(a => a.Employee);
+            var applicationDbContext = _context.EmployeeAccounts.Include(a => a.Employee);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Admins/Create
+        // GET: EmployeeAccounts/Create
         public IActionResult Create()
         {
             ViewData["EmployeeID"] = new SelectList(_context.Employees, "EmployeeID", "CitizenID");
             return View();
         }
 
-        // POST: Admins/Create
+        // POST: EmployeeAccounts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmployeeID,Username,IsActive")] Admin admin, string Password)
+        public async Task<IActionResult> Create([Bind("EmployeeID,Username,IsActive")] EmployeeAccount admin, string Password)
         {
-            ModelState.Remove(nameof(Admin.PasswordHash));
-            ModelState.Remove(nameof(Admin.Salt));
-            ModelState.Remove(nameof(Admin.Employee));
+            ModelState.Remove(nameof(EmployeeAccount.PasswordHash));
+            ModelState.Remove(nameof(EmployeeAccount.Salt));
+            ModelState.Remove(nameof(EmployeeAccount.Employee));
 
             // First check password manually
             if (string.IsNullOrWhiteSpace(Password))
@@ -128,7 +128,7 @@ namespace MinimartWeb.Controllers
                 return NotFound();
             }
 
-            var admin = await _context.Admins.FindAsync(id);
+            var admin = await _context.EmployeeAccounts.FindAsync(id);
             if (admin == null)
             {
                 return NotFound();
@@ -140,16 +140,16 @@ namespace MinimartWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AdminID,EmployeeID,Username,IsActive")] Admin admin, string Password)
+        public async Task<IActionResult> Edit(int id, [Bind("AdminID,EmployeeID,Username,IsActive")] EmployeeAccount admin, string Password)
         {
-            if (id != admin.AdminID)
+            if (id != admin.AccountID)
             {
                 return NotFound();
             }
 
-            ModelState.Remove(nameof(Admin.PasswordHash));
-            ModelState.Remove(nameof(Admin.Salt));
-            ModelState.Remove(nameof(Admin.Employee));
+            ModelState.Remove(nameof(EmployeeAccount.PasswordHash));
+            ModelState.Remove(nameof(EmployeeAccount.Salt));
+            ModelState.Remove(nameof(EmployeeAccount.Employee));
             ModelState.Remove("Password");
 
             if (!ModelState.IsValid)
@@ -165,20 +165,20 @@ namespace MinimartWeb.Controllers
 
             try
             {
-                var adminFromDb = await _context.Admins.FindAsync(id);
+                var adminFromDb = await _context.EmployeeAccounts.FindAsync(id);
                 if (adminFromDb == null)
                 {
                     return NotFound();
                 }
 
                 // 🛑 Check if EmployeeID already assigned to another Admin
-                if (await _context.Admins.AnyAsync(a => a.EmployeeID == admin.EmployeeID && a.AdminID != admin.AdminID))
+                if (await _context.EmployeeAccounts.AnyAsync(a => a.EmployeeID == admin.EmployeeID && a.AccountID != admin.AccountID))
                 {
                     ModelState.AddModelError("EmployeeID", "This employee is already assigned to another admin.");
                 }
 
                 // 🛑 Check if Username is already taken by another Admin
-                if (await _context.Admins.AnyAsync(a => a.Username == admin.Username && a.AdminID != admin.AdminID))
+                if (await _context.EmployeeAccounts.AnyAsync(a => a.Username == admin.Username && a.AccountID != admin.AccountID))
                 {
                     ModelState.AddModelError("Username", "This username is already taken.");
                 }
@@ -222,9 +222,9 @@ namespace MinimartWeb.Controllers
                 return NotFound();
             }
 
-            var admin = await _context.Admins
+            var admin = await _context.EmployeeAccounts
                 .Include(a => a.Employee)
-                .FirstOrDefaultAsync(m => m.AdminID == id);
+                .FirstOrDefaultAsync(m => m.AccountID == id);
             if (admin == null)
             {
                 return NotFound();
@@ -238,10 +238,10 @@ namespace MinimartWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var admin = await _context.Admins.FindAsync(id);
+            var admin = await _context.EmployeeAccounts.FindAsync(id);
             if (admin != null)
             {
-                _context.Admins.Remove(admin);
+                _context.EmployeeAccounts.Remove(admin);
             }
 
             await _context.SaveChangesAsync();
@@ -250,7 +250,7 @@ namespace MinimartWeb.Controllers
 
         private bool AdminExists(int id)
         {
-            return _context.Admins.Any(e => e.AdminID == id);
+            return _context.EmployeeAccounts.Any(e => e.AccountID == id);
         }
     }
 }

@@ -10,11 +10,11 @@ namespace MinimartWeb.Model
 
         [Required]
         [StringLength(255)]
-        [Display(Name = "Name")]
+        [Display(Name = "Product Name")]
         public string ProductName { get; set; }
 
         [Required]
-        [Display(Name = "Description")]
+        [Display(Name = "Product Description")]
         public string ProductDescription { get; set; }
 
         [Required]
@@ -26,24 +26,19 @@ namespace MinimartWeb.Model
         public int SupplierID { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
-        [Range(0, double.MaxValue)]
+        [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive value.")]
+        [Display(Name = "Price")]
         public decimal Price { get; set; }
 
-        [StringLength(255)]
-        public string? Tags { get; set; }
-
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
-        [Range(0, double.MaxValue)]
+        [Range(0, double.MaxValue, ErrorMessage = "Stock Amount must be a positive value.")]
         [Display(Name = "Stock Amount")]
-        public decimal StockAmount { get; set; } = 0;
+        public decimal StockAmount { get; set; }
 
         [Required]
         [Display(Name = "Measurement Unit")]
         public int MeasurementUnitID { get; set; }
 
-        [Range(0, int.MaxValue)]
         [Display(Name = "Expiration Duration (Days)")]
         public int? ExpirationDurationDays { get; set; }
 
@@ -55,14 +50,14 @@ namespace MinimartWeb.Model
         [Display(Name = "Date Added")]
         public DateTime DateAdded { get; set; } = DateTime.Now;
 
-        [StringLength(512)]
         [Display(Name = "Image Path")]
-        public string? ImagePath { get; set; }
+        public string ImagePath { get; set; }
 
         // Navigation properties
         public Category Category { get; set; }
         public Supplier Supplier { get; set; }
         public MeasurementUnit MeasurementUnit { get; set; }
-        public ICollection<SaleDetail> SaleDetails { get; set; } = new HashSet<SaleDetail>();
+        public ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
+        public ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
     }
 }

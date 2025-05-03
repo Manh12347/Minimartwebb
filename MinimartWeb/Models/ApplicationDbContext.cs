@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MinimartWeb.Model;
+using MinimartWeb.Models;
 
 namespace MinimartWeb.Data
 {
@@ -11,13 +12,17 @@ namespace MinimartWeb.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<MeasurementUnit> MeasurementUnits { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<ProductTag> ProductTags { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<EmployeeRole> EmployeeRoles { get; set; }
         public DbSet<Employee> Employees { get; set; }
-        public DbSet<Admin> Admins { get; set; }
+        public DbSet<EmployeeAccount> EmployeeAccounts { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Sale> Sales { get; set; }
         public DbSet<SaleDetail> SaleDetails { get; set; }
+        public DbSet<OtpType> OtpTypes { get; set; }
+        public DbSet<OtpRequest> OtpRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,9 +53,7 @@ namespace MinimartWeb.Data
 
             modelBuilder.Entity<ProductType>()
                 .HasCheckConstraint("CK_ProductTypes_Price", "[Price] >= 0")
-                .HasCheckConstraint("CK_ProductTypes_StockAmount", "[StockAmount] >= 0");
-
-            modelBuilder.Entity<ProductType>()
+                .HasCheckConstraint("CK_ProductTypes_StockAmount", "[StockAmount] >= 0")
                 .HasCheckConstraint("CK_ProductTypes_ExpirationDurationDays", "[ExpirationDurationDays] >= 0");
 
             // Customers
@@ -71,8 +74,7 @@ namespace MinimartWeb.Data
 
             // Employees
             modelBuilder.Entity<Employee>()
-                .HasCheckConstraint("CK_Employees_Gender", "[Gender] IN ('Male', 'Female', 'Non-Binary', 'Prefer not to say')");
-            modelBuilder.Entity<Employee>()
+                .HasCheckConstraint("CK_Employees_Gender", "[Gender] IN ('Male', 'Female', 'Non-Binary', 'Prefer not to say')")
                 .HasCheckConstraint("CK_Employees_Salary", "[Salary] >= 0");
 
             modelBuilder.Entity<Employee>()
@@ -86,7 +88,7 @@ namespace MinimartWeb.Data
                 .IsUnique();
 
             // Admins
-            modelBuilder.Entity<Admin>()
+            modelBuilder.Entity<EmployeeAccount>()
                 .HasIndex(a => a.Username)
                 .IsUnique();
 
@@ -103,6 +105,11 @@ namespace MinimartWeb.Data
             modelBuilder.Entity<SaleDetail>()
                 .HasCheckConstraint("CK_SaleDetails_Quantity", "[Quantity] > 0")
                 .HasCheckConstraint("CK_SaleDetails_ProductPriceAtPurchase", "[ProductPriceAtPurchase] >= 0");
+
+            // OtpTypes
+            modelBuilder.Entity<OtpType>()
+                .HasIndex(ot => ot.OtpTypeName)
+                .IsUnique();
 
             // Relationships
 
@@ -140,6 +147,22 @@ namespace MinimartWeb.Data
                 .WithMany(p => p.SaleDetails)
                 .HasForeignKey(sd => sd.ProductTypeID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // ProductTags - ProductType relationship
+            modelBuilder.Entity<ProductTag>()
+                .HasOne(pt => pt.ProductType)
+                .WithMany(p => p.ProductTags)
+                .HasForeignKey(pt => pt.ProductTypeID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ProductTags - Tag relationship
+            modelBuilder.Entity<ProductTag>()
+                .HasOne(pt => pt.Tag)
+                .WithMany(t => t.ProductTags)
+                .HasForeignKey(pt => pt.TagID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
         }
     }
 }

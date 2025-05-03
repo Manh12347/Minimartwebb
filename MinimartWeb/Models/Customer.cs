@@ -49,5 +49,6 @@ namespace MinimartWeb.Model
 
         // Navigation property
         public ICollection<Sale> Sales { get; set; } = new HashSet<Sale>();
+        public ICollection<OtpRequest> OtpRequests { get; set; } = new HashSet<OtpRequest>();
     }
 }

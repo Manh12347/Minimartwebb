@@ -3,6 +3,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,7 @@ using MinimartWeb.Model;
 
 namespace MinimartWeb.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class EmployeeAccountsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -99,25 +102,17 @@ namespace MinimartWeb.Controllers
         // Utility method to create a password hash and salt
         private (byte[] passwordHash, byte[] salt) GeneratePasswordHashAndSalt(string password)
         {
-            using (var hmac = new System.Security.Cryptography.HMACSHA256())
+            var salt = new byte[16];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
             {
-                // Create a salt of 16 bytes
-                var salt = new byte[16];
-
-                // Use RandomNumberGenerator.Create() to get a concrete implementation
-                using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(salt); // Fill the salt with random bytes
-                }
-
-                // Use the salt as the key for HMAC
-                hmac.Key = salt;
-
-                // Compute the password hash
-                var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-                return (passwordHash, salt); // Return both the hash and the salt
+                rng.GetBytes(salt); // Fill the salt with random bytes
             }
+
+            using var sha256 = SHA256.Create();
+            var combinedBytes = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+            var computedHash = sha256.ComputeHash(combinedBytes);
+
+            return (computedHash, salt);
         }
 
         // GET: Admins/Edit/5

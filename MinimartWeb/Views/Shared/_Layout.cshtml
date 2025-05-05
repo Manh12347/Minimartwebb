@@ -154,7 +154,7 @@
                     </a>
 
                     <!-- Search Form -->
-                    <form class="d-flex search-form my-2 my-lg-0 flex-grow-1" role="search" asp-controller="Product" asp-action="Search">
+                    <form class="d-flex search-form my-2 my-lg-0 flex-grow-1" role="search" asp-controller="CustomerProducts" asp-action="Search">
                         <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="keyword">
                         <button class="btn btn-warning" type="submit">
                             <i class="fas fa-search text-white"></i>
@@ -190,7 +190,7 @@
         <!-- Remove list-style and padding via CSS -->
         <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>
         <li><a class="dropdown-item" asp-controller="Order" asp-action="History"><i class="fas fa-receipt me-2"></i>Order History</a></li>
-        <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        <li><a class="dropdown-item" asp-controller="Account" asp-action="LogoutConfirmation"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
     </ul>
 
     <!-- Main Content with Sidebar -->
@@ -204,12 +204,7 @@
                 <ul class="sidebar-menu">
                     <li class="sidebar-item">
                         <a asp-controller="Categories" asp-action="Index" class="sidebar-link">
-                            <i class="fas fa-folder"></i> Product Categories
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a asp-controller="Product" asp-action="Index" class="sidebar-link">
-                            <i class="fas fa-box"></i> Products
+                            <i class="fas fa-folder"></i> Categories
                         </a>
                     </li>
                     <li class="sidebar-item">
@@ -291,7 +286,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="container main-container my-4">
+            <div class="content-area my-4">
                 <main role="main" class="pb-3">
                     @RenderBody()
                 </main>
@@ -517,5 +512,6 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <!-- Additional scripts would be rendered here -->
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

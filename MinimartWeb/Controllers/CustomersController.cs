@@ -9,9 +9,13 @@ using Microsoft.EntityFrameworkCore;
 using MinimartWeb.Data;
 using MinimartWeb.Model;
 using Microsoft.AspNetCore.Hosting;
+using System.Text;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MinimartWeb.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CustomersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -54,17 +58,17 @@ namespace MinimartWeb.Controllers
             return View();
         }
 
-        // POST: Customers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("CustomerID,FirstName,LastName,Email,PhoneNumber,Username")] Customer customer,
-            string Password,
-            IFormFile ProfileImage)
+       [Bind("CustomerID,FirstName,LastName,Email,PhoneNumber,Username")] Customer customer,
+       string Password,
+       IFormFile ProfileImage)
         {
             // Remove password fields to prevent overposting
             ModelState.Remove(nameof(Customer.PasswordHash));
             ModelState.Remove(nameof(Customer.Salt));
+            ModelState.Remove("ProfileImage");
 
             // Check for existing email, phone number, and username
             if (await _context.Customers.AnyAsync(c => c.Email == customer.Email))
@@ -83,14 +87,23 @@ namespace MinimartWeb.Controllers
             // Check if password is provided
             if (string.IsNullOrWhiteSpace(Password))
             {
-                ModelState.AddModelError("Password", "Password is required.");
+                ModelState.AddModelError("", "Password is required.");
             }
 
             if (!ModelState.IsValid)
             {
-                return View(customer);
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
 
+            if (!ModelState.IsValid)
+            {
+                return View(customer); // Return view with validation errors
+            }
+
+            // Handle image upload or set default
             if (ProfileImage != null && ProfileImage.Length > 0)
             {
                 var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "users");
@@ -99,10 +112,7 @@ namespace MinimartWeb.Controllers
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Get the file extension
                 var fileExtension = Path.GetExtension(ProfileImage.FileName);
-
-                // Generate a unique file name without the full path
                 var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -111,12 +121,11 @@ namespace MinimartWeb.Controllers
                     await ProfileImage.CopyToAsync(fileStream);
                 }
 
-                // Save only the file name in the database
                 customer.ImagePath = uniqueFileName;
             }
             else
             {
-                customer.ImagePath = "default.png";
+                customer.ImagePath = "default.jpg"; // Use "default.jpg" instead of "default.png"
             }
 
             // Hash password and generate salt
@@ -146,10 +155,12 @@ namespace MinimartWeb.Controllers
             return View(customer);
         }
 
-        // POST: Customers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerID,FirstName,LastName,Email,PhoneNumber,Username")] Customer customer, string Password, IFormFile ProfileImage)
+        public async Task<IActionResult> Edit(int id,
+      [Bind("CustomerID,FirstName,LastName,Email,PhoneNumber,Username")] Customer customer,
+      string Password,
+      IFormFile ProfileImage)
         {
             if (id != customer.CustomerID)
             {
@@ -159,37 +170,33 @@ namespace MinimartWeb.Controllers
             // Remove password fields to prevent overposting
             ModelState.Remove(nameof(Customer.PasswordHash));
             ModelState.Remove(nameof(Customer.Salt));
+            ModelState.Remove("ProfileImage");
 
-            // Check for existing email, phone number, and username (excluding current customer's values)
+            // Check for existing email, phone number, and username (excluding current customer)
             if (await _context.Customers.AnyAsync(c => c.Email == customer.Email && c.CustomerID != customer.CustomerID))
             {
                 ModelState.AddModelError("Email", "The email address is already taken.");
             }
-
             if (await _context.Customers.AnyAsync(c => c.PhoneNumber == customer.PhoneNumber && c.CustomerID != customer.CustomerID))
             {
                 ModelState.AddModelError("PhoneNumber", "The phone number is already in use.");
             }
-
             if (await _context.Customers.AnyAsync(c => c.Username == customer.Username && c.CustomerID != customer.CustomerID))
             {
                 ModelState.AddModelError("Username", "The username is already taken.");
             }
 
-            // Validate uploaded image file (optional)
-            if (ProfileImage != null && ProfileImage.Length > 0)
+            if (!ModelState.IsValid)
             {
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-                var extension = Path.GetExtension(ProfileImage.FileName).ToLowerInvariant();
-                if (!string.IsNullOrEmpty(extension) && !allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("ImagePath", "Only JPG, JPEG, and PNG image files are allowed.");
-                }
+                return View(customer); // Return view with validation errors
             }
 
             if (!ModelState.IsValid)
             {
-                return View(customer);
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
 
             try
@@ -224,17 +231,18 @@ namespace MinimartWeb.Controllers
                         await ProfileImage.CopyToAsync(fileStream);
                     }
 
-                    // Save relative path for use in views
                     customerFromDb.ImagePath = uniqueFileName;
                 }
+                // If no image is uploaded, keep the existing ImagePath (no change)
 
-                // Only update password if it's provided
+                // Only update password if provided
                 if (!string.IsNullOrWhiteSpace(Password))
                 {
                     (byte[] passwordHash, byte[] salt) = GeneratePasswordHashAndSalt(Password);
                     customerFromDb.PasswordHash = passwordHash;
                     customerFromDb.Salt = salt;
                 }
+
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -290,27 +298,20 @@ namespace MinimartWeb.Controllers
             return _context.Customers.Any(e => e.CustomerID == id);
         }
 
+        // Utility method to create a password hash and salt
         private (byte[] passwordHash, byte[] salt) GeneratePasswordHashAndSalt(string password)
         {
-            using (var hmac = new System.Security.Cryptography.HMACSHA256())
+            var salt = new byte[16];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
             {
-                // Create a salt of 16 bytes
-                var salt = new byte[16];
-
-                // Use RandomNumberGenerator.Create() to get a concrete implementation
-                using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(salt); // Fill the salt with random bytes
-                }
-
-                // Use the salt as the key for HMAC
-                hmac.Key = salt;
-
-                // Compute the password hash
-                var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-                return (passwordHash, salt); // Return both the hash and the salt
+                rng.GetBytes(salt); // Fill the salt with random bytes
             }
+
+            using var sha256 = SHA256.Create();
+            var combinedBytes = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+            var computedHash = sha256.ComputeHash(combinedBytes);
+
+            return (computedHash, salt);
         }
     }
 }

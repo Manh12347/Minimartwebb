@@ -38,5 +38,6 @@ namespace MinimartWeb.Model
 
         // Navigation property
         public Employee Employee { get; set; }
+        public ICollection<OtpRequest> OtpRequests { get; set; } = new HashSet<OtpRequest>();
     }
 }

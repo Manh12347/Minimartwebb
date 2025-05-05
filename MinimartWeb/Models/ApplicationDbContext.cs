@@ -162,7 +162,34 @@ namespace MinimartWeb.Data
                 .HasForeignKey(pt => pt.TagID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // OtpTypes
+            modelBuilder.Entity<OtpType>()
+                .HasIndex(ot => ot.OtpTypeName)
+                .IsUnique();
 
+            // OtpRequests
+            modelBuilder.Entity<OtpRequest>()
+                .HasCheckConstraint("CK_OtpRequests_OneActorOnly",
+                    "(CustomerID IS NOT NULL AND EmployeeAccountID IS NULL) OR " +
+                    "(CustomerID IS NULL AND EmployeeAccountID IS NOT NULL)");
+
+            modelBuilder.Entity<OtpRequest>()
+                .HasOne(or => or.Customer)
+                .WithMany(c => c.OtpRequests)
+                .HasForeignKey(or => or.CustomerID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OtpRequest>()
+                .HasOne(or => or.EmployeeAccount)
+                .WithMany(ea => ea.OtpRequests)
+                .HasForeignKey(or => or.EmployeeAccountID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OtpRequest>()
+                .HasOne(or => or.OtpType)
+                .WithMany(ot => ot.OtpRequests)
+                .HasForeignKey(or => or.OtpTypeID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

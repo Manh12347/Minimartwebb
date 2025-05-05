@@ -6,7 +6,7 @@ namespace MinimartWeb.Controllers
     {
         public IActionResult Index()
         {
-            return View(); // This should render the Index view
+            return RedirectToAction("Index", "ProductTypes");
         }
 
         public IActionResult Error()

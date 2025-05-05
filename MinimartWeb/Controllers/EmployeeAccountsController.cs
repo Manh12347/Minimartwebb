@@ -13,7 +13,7 @@ using MinimartWeb.Model;
 
 namespace MinimartWeb.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class EmployeeAccountsController : Controller
     {
         private readonly ApplicationDbContext _context;
